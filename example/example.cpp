@@ -5,6 +5,8 @@
  *      Author: mike_gresens
  */
 
+#include "generator.hpp"
+#include "runner.hpp"
 #include <boost/numeric/cublas/blas.hpp>
 #include <boost/numeric/cusolver/lu.hpp>
 #include <boost/numeric/cusolver/qr.hpp>
@@ -12,122 +14,9 @@
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
-#include <boost/range/algorithm/generate.hpp>
-#include <chrono>
-#include <random>
 #include <iostream>
 
 using namespace boost::numeric;
-
-typedef std::chrono::system_clock clk_t;
-
-void test_gemv()
-{
-	constexpr std::size_t N = 8000;
-
-	const ublas::matrix<real32_t> mu(N, N);
-	const ublas::vector<real32_t> vu1(N);
-
-	const cublas::matrix<real32_t> mc(mu);
-	const cublas::vector<real32_t> vc1(vu1);
-	cublas::vector<real32_t> vc2(N);
-
-	const auto tc0 = clk_t::now();
-	cublas::gemv(1.f, mc, vc1, 0.f, vc2);
-	const auto tc1 = clk_t::now();
-
-	ublas::vector<real32_t> vu2(N);//vc2);
-
-	const auto tu0 = clk_t::now();
-	ublas::blas_2::gmv(vu2, 1.f, 0.f, mu, vu1);
-	const auto tu1 = clk_t::now();
-
-	std::cout << (tc1 - tc0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() / (tc1 - tc0).count() << std::endl;
-//		std::cout << vu2 << std::endl;
-}
-
-void test_gemm()
-{
-	constexpr std::size_t N = 3000;
-
-	const ublas::matrix<real32_t> mu1(N, N);
-	const ublas::matrix<real32_t> mu2(N, N);
-
-	const cublas::matrix<real32_t> mc1(mu1);
-	const cublas::matrix<real32_t> mc2(mu2);
-	cublas::matrix<real32_t> mc3(N, N);
-
-	const auto tc0 = clk_t::now();
-	cublas::gemm(1.f, mc1, mc2, 0.f, mc3);
-	const auto tc1 = clk_t::now();
-
-	ublas::matrix<real32_t> mu3(N, N);//vc2);
-
-	const auto tu0 = clk_t::now();
-	ublas::blas_3::gmm(mu3, 1.f, 0.f, mu1, mu2);
-	const auto tu1 = clk_t::now();
-
-	std::cout << (tc1 - tc0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() / (tc1 - tc0).count() << std::endl;
-//		std::cout << vu2 << std::endl;
-}
-
-void test_gemm_r()
-{
-	constexpr std::size_t N = 3000;
-
-	const ublas::matrix<real32_t> mu1(N, N);
-	const ublas::matrix<real32_t> mu2(N, N);
-
-	const cublas::matrix<real32_t> mc1(mu1);
-	const cublas::matrix<real32_t> mc2(mu2);
-	cublas::matrix<real32_t> mc3(N, N);
-
-	const auto tc0 = clk_t::now();
-	cublas::gemm(1.f, mc1, mc2, 0.f, mc3);
-	const auto tc1 = clk_t::now();
-
-	ublas::matrix<real32_t> mu3(N, N);//vc2);
-
-	const auto tu0 = clk_t::now();
-//	ublas::blas_3::gmm(mu3, 1.f, 0.f, mu1, mu2);
-	const auto tu1 = clk_t::now();
-
-	std::cout << (tc1 - tc0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() / (tc1 - tc0).count() << std::endl;
-//		std::cout << vu2 << std::endl;
-}
-
-void test_gemm_c()
-{
-	constexpr std::size_t N = 3000;
-
-	const ublas::matrix<real32_t> mu1(N, N);
-	const ublas::matrix<real32_t> mu2(N, N);
-
-	const cublas::matrix<real32_t> mc1(mu1);
-	const cublas::matrix<real32_t> mc2(mu2);
-	cublas::matrix<real32_t> mc3(N, N);
-
-	const auto tc0 = clk_t::now();
-	cublas::gemm(1.f, mc1, mc2, 0.f, mc3);
-	const auto tc1 = clk_t::now();
-
-	ublas::matrix<real32_t> mu3(N, N);//vc2);
-
-	const auto tu0 = clk_t::now();
-//	ublas::blas_3::gmm(mu3, 1.f, 0.f, mu1, mu2);
-	const auto tu1 = clk_t::now();
-
-	std::cout << (tc1 - tc0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() << std::endl;
-	std::cout << (tu1 - tu0).count() / (tc1 - tc0).count() << std::endl;
-//		std::cout << vu2 << std::endl;
-}
 
 /*       | 1 2 3 |
  *   A = | 4 5 6 |
@@ -136,8 +25,8 @@ void test_gemm_c()
  *   x = (1 1 1)'
  *   b = (6 15 4)'
  */
-
-void test_lu1()
+static void
+test_solve()
 {
 	using cusolver::lu::solver;
 	typedef real64_t value_t;
@@ -145,7 +34,7 @@ void test_lu1()
 
 	ublas::matrix<value_t> A(N, N);
 //	A <<= 2, 0, 2, 1, 2, 2, 0, 2, 3;
-	A <<= 1,2,3,4,5,6,2,1,1;
+	A <<= 1, 2, 3, 4, 5, 6, 2, 1, 1;
 
 	const solver<value_t> solve(A);
 
@@ -158,7 +47,8 @@ void test_lu1()
 	std::cout << "x = " << x << std::endl;
 }
 
-void test_lu2()
+static void
+test_invert()
 {
 	using cusolver::lu::inverter;
 	typedef real64_t value_t;
@@ -172,65 +62,6 @@ void test_lu2()
 	const ublas::matrix<value_t> I = invert();
 
 	std::cout << "I = " << I << std::endl;
-}
-
-template <typename T>
-class generator
-{
-public:
-	generator()
-	:
-		_gen(std::random_device()()),
-		_dis(1, 2)
-	{
-	}
-
-	T
-	operator()()
-	{
-		return gen();
-	}
-
-	ublas::vector<T>
-	operator()(const std::size_t s)
-	{
-		ublas::vector<T> v(s);
-		boost::range::generate(v.data(), std::bind(&generator<T>::gen, this));
-		return std::move(v);
-	}
-
-	ublas::matrix<T>
-	operator()(const std::size_t r, const std::size_t c)
-	{
-		ublas::matrix<T> A(r, c);
-		boost::range::generate(A.data(), std::bind(&generator<T>::gen, this));
-		return std::move(A);
-	}
-
-protected:
-	T gen()
-	{
-		return T(_dis(_gen), _dis(_gen));
-	}
-
-private:
-	std::mt19937 _gen;
-	std::uniform_real_distribution<typename T::value_type> _dis;
-//	std::uniform_real_distribution<T> _dis;
-};
-
-template <typename T, typename F>
-static void
-run(const std::string& name, F function)
-{
-	std::cout << name << ':' << std::endl;
-
-	const auto t0 = clk_t::now();
-	const T result = function();
-	const auto t1 = clk_t::now();
-
-	std::cout << "r = " << result << std::endl;
-	std::cout << "t = "<< std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count() << " ms" << std::endl;
 }
 
 // Given:
@@ -251,8 +82,6 @@ test()
 	typedef complex64_t value_t;
 
 	constexpr std::size_t N = 1000;
-
-	std::cout << (4 * (N * N) + 3 * N) * sizeof(value_t) << std::endl;
 
 	generator<value_t> generate;
 
@@ -295,8 +124,8 @@ test()
 		return cublas::dot(x1, x2);
 	};
 
-	run<value_t>("gpu", gpu);
-	run<value_t>("cpu", cpu);
+	runner("gpu")(gpu);
+	runner("cpu")(cpu);
 }
 
 int
@@ -304,6 +133,8 @@ main()
 {
 	try
 	{
+		test_solve();
+		test_invert();
 		test();
 	}
 	catch (const std::exception& e)
