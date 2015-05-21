@@ -6,6 +6,7 @@ project boost_cublas
 		<cxxflags>-std=c++11
 		<include>include
 		<include>source
+		<include>test
 		<define>BOOST_ALL_DYN_LINK
 	;
 
@@ -30,19 +31,27 @@ lib boost_cusolver
 		/site-config//cusolver
 	;
 
+unit-test boost_cuda_test
+	:
+		[ glob test/cuda/*.cpp ]
+		test/test.cpp
+		boost_cuda
+		/site-config//boost_unit_test_framework
+	;
+
+unit-test boost_cublas_test
+	:
+		[ glob test/cublas/*.cpp ]
+		test/test.cpp
+		boost_cuda
+		boost_cublas
+		/site-config//boost_unit_test_framework
+	;
+
 exe boost_cublas_example
 	:
 		[ glob example/*.cpp ]
 		boost_cuda
 		boost_cublas
 		boost_cusolver
-	;
-
-unit-test boost_cublas_test
-	:
-		[ glob test/*.cpp ]
-		boost_cuda
-		boost_cublas
-		boost_cusolver
-		/site-config//boost_unit_test_framework
 	;
