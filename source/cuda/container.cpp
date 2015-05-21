@@ -65,9 +65,32 @@ container<T>::container(const container<T>& container)
 template <typename T>
 container<T>::container(container<T>&& container)
 :
-	_size(container.size()),
-	_elements(std::forward<pointer>(container._elements))
+	_size(),
+	_elements()
 {
+	std::swap(_size, container._size);
+	std::swap(_elements, container._elements);
+}
+
+template <typename T>
+container<T>&
+container<T>::operator=(const container<T>& container)
+{
+	_size = container.size();
+	_elements = detail::alloc<T>(_size);
+	detail::memcopy<T>(_elements, container._elements, _size);
+	return *this;
+}
+
+template <typename T>
+container<T>&
+container<T>::operator=(container<T>&& container) noexcept
+{
+	_size = 0;
+	_elements.release();
+	std::swap(_size, container._size);
+	std::swap(_elements, container._elements);
+	return *this;
 }
 
 template <typename T>

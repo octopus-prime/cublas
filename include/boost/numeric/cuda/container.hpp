@@ -31,7 +31,10 @@ public:
 	container(container<T>&& container);
 
 	container<T>&
-	operator=(container<T>&& container) noexcept = default;
+	operator=(const container<T>& container);
+
+	container<T>&
+	operator=(container<T>&& container) noexcept;
 
 	std::size_t
 	size() const noexcept;
