@@ -9,7 +9,6 @@
 #include "generator.hpp"
 #include "check.hpp"
 #include <boost/numeric/cublas/matrix.hpp>
-#include <boost/numeric/ublas/operation.hpp>
 #include <boost/test/unit_test.hpp>
 
 namespace boost {
