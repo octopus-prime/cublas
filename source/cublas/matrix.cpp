@@ -60,6 +60,15 @@ void transpose(const matrix<complex64_t>& matrix1, matrix<complex64_t>& matrix2)
 }
 
 template <typename T>
+matrix<T>::matrix()
+:
+	cuda::container<T>(),
+	_rows(),
+	_cols()
+{
+}
+
+template <typename T>
 matrix<T>::matrix(const std::size_t rows, const std::size_t cols)
 :
 	cuda::container<T>(rows * cols),

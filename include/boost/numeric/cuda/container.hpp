@@ -25,9 +25,13 @@ public:
 
 	typedef std::unique_ptr<T[], deleter> pointer;
 
+	container();
 	container(const std::size_t size);
 	container(const container<T>& container);
 	container(container<T>&& container);
+
+	container<T>&
+	operator=(container<T>&& container) noexcept = default;
 
 	std::size_t
 	size() const noexcept;

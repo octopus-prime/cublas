@@ -23,6 +23,8 @@ class matrix
 	boost::multiplicative<matrix<T>, T>
 {
 public:
+	matrix();
+
 	matrix(const std::size_t rows, const std::size_t cols);
 
 	matrix(const ublas::matrix<T>& matrix);

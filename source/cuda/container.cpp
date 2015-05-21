@@ -38,6 +38,14 @@ memcopy(P& dest, const P& source, const std::size_t size)
 }
 
 template <typename T>
+container<T>::container()
+:
+	_size(),
+	_elements()
+{
+}
+
+template <typename T>
 container<T>::container(const std::size_t size)
 :
 	_size(size),

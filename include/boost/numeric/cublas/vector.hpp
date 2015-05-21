@@ -23,6 +23,8 @@ class vector
 	boost::multiplicative<vector<T>, T>
 {
 public:
+	vector() = default;
+
 	vector(const std::size_t size);
 
 	vector(const ublas::vector<T>& vector);
