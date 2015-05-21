@@ -1,0 +1,48 @@
+using testing ;
+
+project boost_cublas
+	:
+		requirements
+		<cxxflags>-std=c++11
+		<include>include
+		<include>source
+		<define>BOOST_ALL_DYN_LINK
+	;
+
+lib boost_cuda
+	:
+		[ glob source/cuda/*.cpp ]
+		/site-config//cudart
+	;
+
+lib boost_cublas
+	:
+		[ glob source/cublas/*.cpp ]
+		boost_cuda
+		/site-config//cublas
+	;
+
+lib boost_cusolver
+	:
+		[ glob source/cusolver/*.cpp ]
+		boost_cuda
+		boost_cublas
+		/site-config//cusolver
+	;
+
+exe boost_cublas_example
+	:
+		[ glob example/*.cpp ]
+		boost_cuda
+		boost_cublas
+		boost_cusolver
+	;
+
+unit-test boost_cublas_test
+	:
+		[ glob test/*.cpp ]
+		boost_cuda
+		boost_cublas
+		boost_cusolver
+		/site-config//boost_unit_test_framework
+	;
