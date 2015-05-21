@@ -17,25 +17,43 @@ using namespace boost::numeric;
 template <typename T>
 class generator
 {
+	struct real_generator
+	{
+		template <typename F>
+		T operator()(F function) const
+		{
+			return function();
+		}
+	};
+
+	struct complex_generator
+	{
+		template <typename F>
+		T operator()(F function) const
+		{
+			return T(function(), function());
+		}
+	};
+
 public:
 	generator()
 	:
 		_gen(std::random_device()()),
-		_dis(1, 2)
+		_dis(0.1, 0.9)
 	{
 	}
 
 	T
 	operator()()
 	{
-		return gen();
+		return generate();
 	}
 
 	ublas::vector<T>
 	operator()(const std::size_t s)
 	{
 		ublas::vector<T> v(s);
-		boost::range::generate(v.data(), std::bind(&generator<T>::gen, this));
+		boost::range::generate(v.data(), std::bind(&generator<T>::generate<>, this));
 		return std::move(v);
 	}
 
@@ -43,18 +61,23 @@ public:
 	operator()(const std::size_t r, const std::size_t c)
 	{
 		ublas::matrix<T> A(r, c);
-		boost::range::generate(A.data(), std::bind(&generator<T>::gen, this));
+		boost::range::generate(A.data(), std::bind(&generator<T>::generate<>, this));
 		return std::move(A);
 	}
 
 protected:
-	T gen()
+	template <typename G = typename std::conditional<std::is_floating_point<T>::value, real_generator, complex_generator>::type>
+	T generate()
 	{
-		return T(_dis(_gen), _dis(_gen));
+		return G()(std::bind(&generator<T>::random, this));
+	}
+
+	double random()
+	{
+		return _dis(_gen);
 	}
 
 private:
 	std::mt19937 _gen;
-	std::uniform_real_distribution<typename T::value_type> _dis;
-//	std::uniform_real_distribution<T> _dis;
+	std::uniform_real_distribution<double> _dis;
 };
