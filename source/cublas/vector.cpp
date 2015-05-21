@@ -74,10 +74,22 @@ vector<T>::operator/=(const T& value)
 	return *this;
 }
 
+template <typename T>
+T
+operator*(const vector<T>& vector1, const vector<T>& vector2)
+{
+	return dot(vector1, vector2);
+}
+
 template class vector<real32_t>;
 template class vector<real64_t>;
 template class vector<complex32_t>;
 template class vector<complex64_t>;
+
+template real32_t operator*(const vector<real32_t>& vector1, const vector<real32_t>& vector2);
+template real64_t operator*(const vector<real64_t>& vector1, const vector<real64_t>& vector2);
+template complex32_t operator*(const vector<complex32_t>& vector1, const vector<complex32_t>& vector2);
+template complex64_t operator*(const vector<complex64_t>& vector1, const vector<complex64_t>& vector2);
 
 }
 }

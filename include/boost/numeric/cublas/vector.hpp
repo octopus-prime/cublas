@@ -44,6 +44,10 @@ public:
 	operator/=(const T& value);
 };
 
+template <typename T>
+T
+operator*(const vector<T>& vector1, const vector<T>& vector2);
+
 }
 }
 }

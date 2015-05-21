@@ -103,6 +103,26 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_divide, T, types_t)
 	BOOST_CHECK_VECTOR(resultu, resultc);
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_product, T, types_t)
+{
+	generator<T> generate;
+
+	const ublas::vector<T> vector1u = generate(N);
+	const ublas::vector<T> vector2u = generate(N);
+
+	cublas::vector<T> vector1c, vector2c;
+
+	BOOST_REQUIRE_NO_THROW(vector1c = vector1u);
+	BOOST_REQUIRE_NO_THROW(vector2c = vector2u);
+
+	T resultu, resultc;
+
+	BOOST_REQUIRE_NO_THROW(resultu = ublas::inner_prod(vector1u, vector2u));
+	BOOST_REQUIRE_NO_THROW(resultc = vector1c * vector2c);
+
+	BOOST_CHECK_CLOSE(std::abs(resultu), std::abs(resultc), tolerance);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 }
