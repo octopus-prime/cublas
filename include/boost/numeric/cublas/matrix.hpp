@@ -15,6 +15,9 @@ namespace boost {
 namespace numeric {
 namespace cublas {
 
+/**
+ * matrix
+ */
 template <typename T>
 class matrix
 :
@@ -22,12 +25,28 @@ class matrix
 	boost::multiplicative<matrix<T>, T>
 {
 public:
+	/**
+	 * Default constructor.
+	 */
 	matrix();
 
+	/**
+	 * Standard constructor.
+	 * @param rows The rows.
+	 * @param cols The cols.
+	 */
 	matrix(const std::size_t rows, const std::size_t cols);
 
+	/**
+	 * Convert constructor.
+	 * @param matrix The matrix.
+	 */
 	matrix(const ublas::matrix<T>& matrix);
 
+	/**
+	 * Copy constructor.
+	 * @param matrix The matrix.
+	 */
 	matrix(const cublas::matrix<T>& matrix);
 
 //	matrix(cublas::matrix<T>&& matrix) noexcept;
