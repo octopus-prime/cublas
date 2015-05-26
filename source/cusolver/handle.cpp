@@ -14,7 +14,7 @@ namespace cusolver {
 
 static cusolverDnHandle_t make_handle()
 {
-	cusolverDnHandle_t handle;
+	cusolverDnHandle_t handle = nullptr;
 	const cusolverStatus_t status = cusolverDnCreate(&handle);
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);

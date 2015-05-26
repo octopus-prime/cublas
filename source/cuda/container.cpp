@@ -5,7 +5,6 @@
  *      Author: mike_gresens
  */
 
-//#include <boost/numeric/type.hpp>
 #include <boost/numeric/cuda/container.hpp>
 #include "error.hpp"
 #include <cuda_runtime.h>
@@ -25,7 +24,7 @@ template <typename T>
 container<T>
 make_container(const std::size_t size)
 {
-	T* elements;
+	T* elements = nullptr;
 	const cudaError error = cudaMalloc(&elements, size * sizeof(T));
 	if (error != cudaSuccess)
 		throw std::system_error(error, category, __PRETTY_FUNCTION__);

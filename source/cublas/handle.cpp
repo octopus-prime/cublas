@@ -14,7 +14,7 @@ namespace cublas {
 
 static cublasHandle_t make_handle()
 {
-	cublasHandle_t handle;
+	cublasHandle_t handle = nullptr;
 	const cublasStatus_t status = cublasCreate_v2(&handle);
 	if (status != CUBLAS_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);

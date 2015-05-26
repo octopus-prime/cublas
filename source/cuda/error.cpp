@@ -21,7 +21,7 @@ category_impl::name() const noexcept
 std::string
 category_impl::message(int status) const
 {
-	return cudaGetErrorString((cudaError_t) status);
+	return cudaGetErrorString(static_cast<cudaError_t>(status));
 }
 
 const category_impl category(0);
