@@ -54,11 +54,8 @@ template <typename T>
 cublas::vector<T>
 solver<T>::operator()(const cublas::vector<T>& vector) const
 {
-	std::cout << "x" << std::endl;
 	cublas::vector<T> result(vector);
-	std::cout << "y" << std::endl;
 	getrs(decomposer<T>::_matrix, decomposer<T>::_pivot, result);
-	std::cout << "z" << std::endl;
 	return std::move(result);
 }
 
