@@ -15,51 +15,17 @@ namespace numeric {
 namespace cuda {
 
 template <typename T>
-class container
+struct deleter
 {
-public:
-	struct deleter
-	{
-		void operator()(T* elements) const;
-	};
-
-	typedef std::unique_ptr<T[], deleter> pointer;
-
-	container();
-	container(const std::size_t size);
-	container(const container<T>& container);
-	container(container<T>&& container);
-
-	container<T>&
-	operator=(const container<T>& container);
-
-	container<T>&
-	operator=(container<T>&& container) noexcept;
-
-	std::size_t
-	size() const noexcept;
-
-	const pointer&
-	operator*() const noexcept;
-
-private:
-	std::size_t _size;
-	pointer _elements;
+	void operator()(T* p) const;
 };
 
 template <typename T>
-std::size_t
-container<T>::size() const noexcept
-{
-	return _size;
-}
+using container = std::unique_ptr<T, deleter<T>>;
 
 template <typename T>
-const typename container<T>::pointer&
-container<T>::operator*() const noexcept
-{
-	return _elements;
-}
+container<T>
+make_container(const std::size_t size);
 
 }
 }

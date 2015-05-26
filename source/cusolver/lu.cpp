@@ -17,7 +17,7 @@ template <typename T>
 decomposer<T>::decomposer(const cublas::matrix<T>& matrix)
 :
 	_matrix(matrix),
-	_pivot(std::min(matrix.rows(), matrix.cols()))
+	_pivot(cuda::make_container<int>(std::min(matrix.rows(), matrix.cols())))
 {
 	getrf(_matrix, _pivot);
 }
@@ -26,7 +26,7 @@ template <typename T>
 decomposer<T>::decomposer(cublas::matrix<T>&& matrix)
 :
 	_matrix(std::forward<cublas::matrix<T>>(matrix)),
-	_pivot(std::min(matrix.rows(), matrix.cols()))
+	_pivot(cuda::make_container<int>(std::min(matrix.rows(), matrix.cols())))
 {
 	getrf(_matrix, _pivot);
 }
@@ -54,8 +54,11 @@ template <typename T>
 cublas::vector<T>
 solver<T>::operator()(const cublas::vector<T>& vector) const
 {
+	std::cout << "x" << std::endl;
 	cublas::vector<T> result(vector);
+	std::cout << "y" << std::endl;
 	getrs(decomposer<T>::_matrix, decomposer<T>::_pivot, result);
+	std::cout << "z" << std::endl;
 	return std::move(result);
 }
 

@@ -79,7 +79,7 @@ test_invert()
 static void
 test()
 {
-	typedef complex64_t value_t;
+	typedef complex32_t value_t;
 
 	constexpr std::size_t N = 1000;
 
@@ -131,15 +131,15 @@ test()
 int
 main()
 {
-	try
-	{
+//	try
+//	{
 		test_solve();
 		test_invert();
 		test();
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "error: " << e.what() << std::endl;
-	}
+//	}
+//	catch (const std::exception& e)
+//	{
+//		std::cerr << "error: " << e.what() << std::endl;
+//	}
 	return 0;
 }

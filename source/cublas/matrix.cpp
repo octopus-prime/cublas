@@ -9,13 +9,17 @@
 #include <boost/numeric/cublas/blas.hpp>
 #include "handle.hpp"
 #include "error.hpp"
+#include "type_trait.hpp"
 #include <cublas_v2.h>
 
-#include <iostream>
+//#define TRANSPOSE_IN_GPU
 
 namespace boost {
 namespace numeric {
 namespace cublas {
+
+#ifdef TRANSPOSE_IN_GPU
+
 namespace detail {
 
 template <typename U, typename T, typename F>
@@ -59,61 +63,99 @@ void transpose(const matrix<complex64_t>& matrix1, matrix<complex64_t>& matrix2)
 	detail::transpose<cuDoubleComplex>(matrix1, matrix2, cublasZgeam);
 }
 
+#endif
+
 template <typename T>
 matrix<T>::matrix()
 :
-	cuda::container<T>(),
 	_rows(),
-	_cols()
+	_cols(),
+	_elements()
 {
 }
 
 template <typename T>
 matrix<T>::matrix(const std::size_t rows, const std::size_t cols)
 :
-	cuda::container<T>(rows * cols),
 	_rows(rows),
-	_cols(cols)
+	_cols(cols),
+	_elements(cuda::make_container<T>(_rows * _cols))
 {
 }
+
+
+template <typename T>
+matrix<T>::matrix(const cublas::matrix<T>& matrix)
+:
+	_rows(matrix._rows),
+	_cols(matrix._cols),
+	_elements(cuda::make_container<T>(_rows * _cols))
+{
+	copy(matrix, *this);
+}
+
+//template <typename T>
+//matrix<T>::matrix(cublas::matrix<T>&& matrix) noexcept
+//:
+//	_rows(),
+//	_cols(),
+//	_elements()
+//{
+//	std::swap(_rows, matrix._rows);
+//	std::swap(_cols, matrix._cols);
+//	std::swap(_elements, matrix._elements);
+//}
 
 template <typename T>
 matrix<T>::matrix(const ublas::matrix<T>& matrix)
 :
-	cuda::container<T>(matrix.size1() * matrix.size2()),
 	_rows(matrix.size1()),
-	_cols(matrix.size2())
+	_cols(matrix.size2()),
+	_elements(cuda::make_container<T>(_rows * _cols))
 {
-
-	const ublas::matrix<T> matrix2 = ublas::trans(matrix); // todo: use cublas here !!
-
-	const cublasStatus_t status = cublasSetMatrix(this->rows(), this->cols(), sizeof(T), &matrix2.data()[0], this->rows(), (**this).get(), this->rows());
-	if (status != CUBLAS_STATUS_SUCCESS)
-		throw std::system_error(status, category, __func__);
-
-/*
+#ifdef TRANSPOSE_IN_GPU
 	const cublas::matrix<T> temp(_cols, _rows);
 	const cublasStatus_t status = cublasSetMatrix(this->rows(), this->cols(), sizeof(T), &matrix.data()[0], this->rows(), (*temp).get(), this->rows());
 	if (status != CUBLAS_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 	transpose(temp, *this);
-*/
+#else
+	const ublas::matrix<T> matrix2 = ublas::trans(matrix); // todo: use cublas here !!
+
+	const cublasStatus_t status = cublasSetMatrix(_rows, _cols, sizeof(T), &matrix2.data()[0], _rows, _elements.get(), _rows);
+	if (status != CUBLAS_STATUS_SUCCESS)
+		throw std::system_error(status, category, __func__);
+#endif
 }
+
+template <typename T>
+matrix<T>&
+matrix<T>::operator=(const cublas::matrix<T>& matrix)
+{
+	_rows = matrix._rows;
+	_cols = matrix._cols;
+	_elements = cuda::make_container<T>(_rows * _cols);
+	copy(matrix, *this);
+	return *this;
+}
+
+//template <typename T>
+//matrix<T>&
+//matrix<T>::operator=(cublas::matrix<T>&& matrix) noexcept
+//{
+//	_rows = 0;
+//	_cols = 0;
+//	_elements.release();
+//	std::swap(_rows, matrix._rows);
+//	std::swap(_cols, matrix._cols);
+//	std::swap(_elements, matrix._elements);
+//	return *this;
+//}
 
 template <typename T>
 matrix<T>::operator ublas::matrix<T>() const
 {
-
-	ublas::matrix<T> matrix(_cols, _rows);
-	const cublasStatus_t status = cublasGetMatrix(this->rows(), this->cols(), sizeof(T), (**this).get(), this->rows(), &matrix.data()[0], this->rows());
-	if (status != CUBLAS_STATUS_SUCCESS)
-		throw std::system_error(status, category, __func__);
-
-	const ublas::matrix<T> matrix2 = ublas::trans(matrix); // todo: use cublas here !!
-
-	return std::move(matrix2);
-
-/*
+#ifdef TRANSPOSE_IN_GPU
 	cublas::matrix<T> temp(_cols, _rows);
 	transpose(*this, temp);
 
@@ -122,7 +164,16 @@ matrix<T>::operator ublas::matrix<T>() const
 	if (status != CUBLAS_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 	return std::move(matrix);
-*/
+#else
+	ublas::matrix<T> matrix(_cols, _rows);
+	const cublasStatus_t status = cublasGetMatrix(_rows, _cols, sizeof(T), _elements.get(), _rows, &matrix.data()[0], _rows);
+	if (status != CUBLAS_STATUS_SUCCESS)
+		throw std::system_error(status, category, __func__);
+
+	const ublas::matrix<T> matrix2 = ublas::trans(matrix); // todo: use cublas here !!
+
+	return std::move(matrix2);
+#endif
 }
 
 template <typename T>

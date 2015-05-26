@@ -17,9 +17,9 @@ namespace detail {
 template <typename U, typename T, typename F>
 void getrs(const cublas::matrix<T>& matrix, const cuda::container<int>& pivot, cublas::vector<T>& vector, F function)
 {
-	cuda::container<int> info(1);
+	auto info = cuda::make_container<int>(1);
 
-	const cusolverStatus_t status = function(handle.get(), CUBLAS_OP_N, matrix.rows(), 1, (U*) (*matrix).get(), matrix.rows(), (*pivot).get(), (U*) (*vector).get(), vector.size(), (*info).get());
+	const cusolverStatus_t status = function(handle.get(), CUBLAS_OP_N, matrix.rows(), 1, (U*) (*matrix).get(), matrix.rows(), pivot.get(), (U*) (*vector).get(), vector.size(), info.get());
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 }
@@ -27,9 +27,9 @@ void getrs(const cublas::matrix<T>& matrix, const cuda::container<int>& pivot, c
 template <typename U, typename T, typename F>
 void getrs(const cublas::matrix<T>& matrix, const cuda::container<int>& pivot, cublas::matrix<T>& matrix2, F function)
 {
-	cuda::container<int> info(1);
+	auto info = cuda::make_container<int>(1);
 
-	const cusolverStatus_t status = function(handle.get(), CUBLAS_OP_N, matrix.rows(), matrix2.cols(), (U*) (*matrix).get(), matrix.rows(), (*pivot).get(), (U*) (*matrix2).get(), matrix.rows(), (*info).get());
+	const cusolverStatus_t status = function(handle.get(), CUBLAS_OP_N, matrix.rows(), matrix2.cols(), (U*) (*matrix).get(), matrix.rows(), pivot.get(), (U*) (*matrix2).get(), matrix.rows(), info.get());
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 }

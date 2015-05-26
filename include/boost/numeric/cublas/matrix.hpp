@@ -18,7 +18,6 @@ namespace cublas {
 template <typename T>
 class matrix
 :
-	public cuda::container<T>,
 	boost::additive<matrix<T>>,
 	boost::multiplicative<matrix<T>, T>
 {
@@ -29,6 +28,16 @@ public:
 
 	matrix(const ublas::matrix<T>& matrix);
 
+	matrix(const cublas::matrix<T>& matrix);
+
+//	matrix(cublas::matrix<T>&& matrix) noexcept;
+
+	matrix<T>&
+	operator=(const cublas::matrix<T>& matrix);
+
+//	matrix<T>&
+//	operator=(cublas::matrix<T>&& matrix) noexcept;
+
 	operator ublas::matrix<T>() const;
 
 	std::size_t
@@ -36,6 +45,9 @@ public:
 
 	std::size_t
 	cols() const noexcept;
+
+	const cuda::container<T>&
+	operator*() const noexcept;
 
 	matrix<T>&
 	operator+=(const matrix<T>& matrix);
@@ -52,11 +64,8 @@ public:
 private:
 	std::size_t _rows;
 	std::size_t _cols;
+	cuda::container<T> _elements;
 };
-
-template <typename T>
-matrix<T>
-operator*(const matrix<T>& matrix1, const matrix<T>& matrix2);
 
 template <typename T>
 std::size_t
@@ -71,6 +80,17 @@ matrix<T>::cols() const noexcept
 {
 	return _cols;
 }
+
+template <typename T>
+const cuda::container<T>&
+matrix<T>::operator*() const noexcept
+{
+	return _elements;
+}
+
+template <typename T>
+matrix<T>
+operator*(const matrix<T>& matrix1, const matrix<T>& matrix2);
 
 }
 }

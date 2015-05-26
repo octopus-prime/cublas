@@ -15,14 +15,23 @@ namespace numeric {
 namespace cublas {
 
 // blas1
-template <typename T>
-void scal(const T& alpha, cuda::container<T>& container);
+template <typename T, template <typename> class C>
+void scal(const T& alpha, C<T>& container);
 
-template <typename T>
-void axpy(const T& alpha, const cuda::container<T>& container1, cuda::container<T>& container2);
+template <typename T, template <typename> class C>
+void axpy(const T& alpha, const C<T>& container1, C<T>& container2);
 
 template <typename T>
 T dot(const vector<T>& vector1, const vector<T>& vector2);
+
+/**
+ * @tparam T The value type, e.g. real32_t or complex64_t.
+ * @tparam C The container type, e.g. vector or matrix.
+ * @param container1 The 1st container.
+ * @param container2 The 2nd container.
+ */
+template <typename T, template <typename> class C>
+void copy(const C<T>& container1, C<T>& container2);
 
 // blas2
 template <typename T>
@@ -32,11 +41,8 @@ void gemv(const T& alpha, const matrix<T>& matrix, const vector<T>& vector1, con
 template <typename T>
 void gemm(const T& alpha, const matrix<T>& matrix1, const matrix<T>& matrix2, const T& beta, matrix<T>& matrix3);
 
-template <typename T>
-void trsm(const T& alpha, const matrix<T>& matrix, vector<T>& vector);
-
-template <typename T>
-void trsm(const T& alpha, const matrix<T>& matrix1, matrix<T>& matrix2);
+template <typename T, template <typename> class C>
+void trsm(const T& alpha, const matrix<T>& matrix, C<T>& container);
 
 }
 }

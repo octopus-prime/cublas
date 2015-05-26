@@ -6,47 +6,70 @@
  */
 
 #include <boost/numeric/cublas/blas.hpp>
+#include "type_trait.hpp"
+#include "size.hpp"
 #include "handle.hpp"
 #include "error.hpp"
 
 namespace boost {
 namespace numeric {
 namespace cublas {
-namespace detail {
 
-template <typename U, typename T, typename F>
-void scal(const T& alpha, cuda::container<T>& container, F function)
+template <typename T>
+struct function;
+
+template <>
+struct function<real32_t>
 {
-	const cublasStatus_t status = function(handle.get(), container.size(), (U*) &alpha, (U*) (*container).get(), 1);
+	static constexpr auto call = cublasSscal_v2;
+};
+
+template <>
+struct function<real64_t>
+{
+	static constexpr auto call = cublasDscal_v2;
+};
+
+template <>
+struct function<complex32_t>
+{
+	static constexpr auto call = cublasCscal_v2;
+};
+
+template <>
+struct function<complex64_t>
+{
+	static constexpr auto call = cublasZscal_v2;
+};
+
+template <typename T, template <typename> class C>
+void scal(const T& alpha, C<T>& container)
+{
+	typedef typename type_trait<T>::type U;
+
+	const cublasStatus_t status = function<T>::call
+	(
+		handle.get(),
+		size(container),
+		reinterpret_cast<const U*>(&alpha),
+		reinterpret_cast<U*>((*container).get()), 1
+	);
+
 	if (status != CUBLAS_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 }
 
-}
+template void scal(const real32_t& alpha, vector<real32_t>& container);
+template void scal(const real32_t& alpha, matrix<real32_t>& container);
 
-template <>
-void scal(const real32_t& alpha, cuda::container<real32_t>& container)
-{
-	detail::scal<float>(alpha, container, cublasSscal_v2);
-}
+template void scal(const real64_t& alpha, vector<real64_t>& container);
+template void scal(const real64_t& alpha, matrix<real64_t>& container);
 
-template <>
-void scal(const real64_t& alpha, cuda::container<real64_t>& container)
-{
-	detail::scal<double>(alpha, container, cublasDscal_v2);
-}
+template void scal(const complex32_t& alpha, vector<complex32_t>& container);
+template void scal(const complex32_t& alpha, matrix<complex32_t>& container);
 
-template <>
-void scal(const complex32_t& alpha, cuda::container<complex32_t>& container)
-{
-	detail::scal<cuFloatComplex>(alpha, container, cublasCscal_v2);
-}
-
-template <>
-void scal(const complex64_t& alpha, cuda::container<complex64_t>& container)
-{
-	detail::scal<cuDoubleComplex>(alpha, container, cublasZscal_v2);
-}
+template void scal(const complex64_t& alpha, vector<complex64_t>& container);
+template void scal(const complex64_t& alpha, matrix<complex64_t>& container);
 
 }
 }

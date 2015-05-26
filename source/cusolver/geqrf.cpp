@@ -15,7 +15,7 @@ namespace cusolver {
 namespace detail {
 
 template <typename U, typename T, typename F>
-cuda::container<T> alloc(cublas::matrix<T>& matrix, F function)
+cublas::vector<T> alloc(cublas::matrix<T>& matrix, F function)
 {
 	int work;
 
@@ -23,15 +23,15 @@ cuda::container<T> alloc(cublas::matrix<T>& matrix, F function)
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 
-	return cuda::container<T>(work);
+	return cublas::vector<T>(work);
 }
 
 template <typename U, typename T, typename F>
-void geqrf(cublas::matrix<T>& matrix, cuda::container<T>& tau, cuda::container<T>& work, F function)
+void geqrf(cublas::matrix<T>& matrix, cublas::vector<T>& tau, cublas::vector<T>& work, F function)
 {
-	cuda::container<int> info(1);
+	auto info = cuda::make_container<int>(1);
 
-	const cusolverStatus_t status = function(handle.get(), matrix.rows(), matrix.cols(), (U*) (*matrix).get(), matrix.rows(), (U*) (*tau).get(), (*work).get(), work.size(), (*info).get());
+	const cusolverStatus_t status = function(handle.get(), matrix.rows(), matrix.cols(), (U*) (*matrix).get(), matrix.rows(), (U*) (*tau).get(), (*work).get(), work.size(), info.get());
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 }
@@ -39,7 +39,7 @@ void geqrf(cublas::matrix<T>& matrix, cuda::container<T>& tau, cuda::container<T
 }
 
 template <>
-cuda::container<real32_t> geqrf(cublas::matrix<real32_t>& matrix, cuda::container<real32_t>& tau)
+cublas::vector<real32_t> geqrf(cublas::matrix<real32_t>& matrix, cublas::vector<real32_t>& tau)
 {
 	auto work = detail::alloc<float>(matrix, cusolverDnSgeqrf_bufferSize);
 	detail::geqrf<float>(matrix, tau, work, cusolverDnSgeqrf);
@@ -47,7 +47,7 @@ cuda::container<real32_t> geqrf(cublas::matrix<real32_t>& matrix, cuda::containe
 }
 
 template <>
-cuda::container<real64_t> geqrf(cublas::matrix<real64_t>& matrix, cuda::container<real64_t>& tau)
+cublas::vector<real64_t> geqrf(cublas::matrix<real64_t>& matrix, cublas::vector<real64_t>& tau)
 {
 	auto work = detail::alloc<double>(matrix, cusolverDnDgeqrf_bufferSize);
 	detail::geqrf<double>(matrix, tau, work, cusolverDnDgeqrf);

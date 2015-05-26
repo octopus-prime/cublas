@@ -15,7 +15,7 @@ namespace cusolver {
 namespace detail {
 
 template <typename U, typename T, typename F>
-cuda::container<T> alloc(cublas::matrix<T>& matrix, F function)
+cublas::vector<T> alloc(cublas::matrix<T>& matrix, F function)
 {
 	int work;
 
@@ -23,15 +23,15 @@ cuda::container<T> alloc(cublas::matrix<T>& matrix, F function)
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 
-	return cuda::container<T>(work);
+	return cublas::vector<T>(work);
 }
 
 template <typename U, typename T, typename F>
-void getrf(cublas::matrix<T>& matrix, cuda::container<int>& pivot, cuda::container<T>& work, F function)
+void getrf(cublas::matrix<T>& matrix, cuda::container<int>& pivot, cublas::vector<T>& work, F function)
 {
-	cuda::container<int> info(1);
+	auto info = cuda::make_container<int>(1);
 
-	const cusolverStatus_t status = function(handle.get(), matrix.rows(), matrix.cols(), (U*) (*matrix).get(), matrix.rows(), (U*) (*work).get(), (*pivot).get(), (*info).get());
+	const cusolverStatus_t status = function(handle.get(), matrix.rows(), matrix.cols(), (U*) (*matrix).get(), matrix.rows(), (U*) (*work).get(), pivot.get(), info.get());
 	if (status != CUSOLVER_STATUS_SUCCESS)
 		throw std::system_error(status, category, __func__);
 }

@@ -37,13 +37,13 @@ void getrs(const cublas::matrix<T>& matrix, const cuda::container<int>& pivot, c
  * @see http://docs.nvidia.com/cuda/cusolver/index.html#cuds-lt-t-gt-geqrf
  */
 template <typename T>
-cuda::container<T> geqrf(cublas::matrix<T>& matrix, cuda::container<T>& tau);
+cublas::vector<T> geqrf(cublas::matrix<T>& matrix, cublas::vector<T>& tau);
 
 template <typename T>
-void ormqr(const cublas::matrix<T>& matrix, const cuda::container<T>& tau, cuda::container<T>& work, cublas::vector<T>& vector);
+void ormqr(const cublas::matrix<T>& matrix, const cublas::vector<T>& tau, cublas::vector<T>& work, cublas::vector<T>& vector);
 
 template <typename T>
-void ormqr(const cublas::matrix<T>& matrix, const cuda::container<T>& tau, cuda::container<T>& work, cublas::matrix<T>& matrix2);
+void ormqr(const cublas::matrix<T>& matrix, const cublas::vector<T>& tau, cublas::vector<T>& work, cublas::matrix<T>& matrix2);
 
 }
 }

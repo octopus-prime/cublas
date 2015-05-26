@@ -40,7 +40,7 @@ cublas::vector<T>
 solver<T>::operator()(const cublas::vector<T>& vector) const
 {
 	cublas::vector<T> result(vector);
-	ormqr(decomposer<T>::_matrix, decomposer<T>::_tau, const_cast<cuda::container<T>&>(decomposer<T>::_work), result);
+	ormqr(decomposer<T>::_matrix, decomposer<T>::_tau, const_cast<cublas::vector<T>&>(decomposer<T>::_work), result);
 	cublas::trsm(T(1), decomposer<T>::_matrix, result);
 	return std::move(result);
 }
@@ -63,7 +63,7 @@ inverter<T>::operator()() const
 {
 	const ublas::matrix<T> matrix = ublas::identity_matrix<T>(decomposer<T>::_matrix.rows(), decomposer<T>::_matrix.cols());
 	cublas::matrix<T> result(matrix);
-	ormqr(decomposer<T>::_matrix, decomposer<T>::_tau, const_cast<cuda::container<T>&>(decomposer<T>::_work), result);
+	ormqr(decomposer<T>::_matrix, decomposer<T>::_tau, const_cast<cublas::vector<T>&>(decomposer<T>::_work), result);
 	cublas::trsm(T(1), decomposer<T>::_matrix, result);
 	return std::move(result);
 }

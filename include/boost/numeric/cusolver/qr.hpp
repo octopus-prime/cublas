@@ -24,8 +24,8 @@ public:
 
 protected:
 	cublas::matrix<T> _matrix;
-	cuda::container<T> _tau;
-	cuda::container<T> _work;
+	cublas::vector<T> _tau;
+	cublas::vector<T> _work;
 };
 
 template <typename T>

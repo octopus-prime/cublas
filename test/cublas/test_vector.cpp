@@ -19,7 +19,61 @@ namespace test {
 BOOST_AUTO_TEST_SUITE(test_vector)
 
 constexpr std::size_t N = 100;
+/*
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_copy_constructor, T, types_t)
+{
+	cublas::vector<T> vector1(N);
+	cublas::vector<T> vector2(vector1);
 
+	BOOST_CHECK_EQUAL(N, vector1.size());
+	BOOST_CHECK_EQUAL(N, vector2.size());
+
+	BOOST_CHECK(*vector1);
+	BOOST_CHECK(*vector2);
+	BOOST_CHECK(*vector1 != *vector2);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_move_constructor, T, types_t)
+{
+	cublas::vector<T> vector1(N);
+	const cublas::vector<T> vector2(std::move(vector1));
+
+	BOOST_CHECK_EQUAL(0, vector1.size());
+	BOOST_CHECK_EQUAL(N, vector2.size());
+
+	BOOST_CHECK(!*vector1);
+	BOOST_CHECK(*vector2);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_copy_assignment, T, types_t)
+{
+	cublas::vector<T> vector1(N);
+	cublas::vector<T> vector2;
+
+	vector2 = vector1;
+
+	BOOST_CHECK_EQUAL(N, vector1.size());
+	BOOST_CHECK_EQUAL(N, vector2.size());
+
+	BOOST_CHECK(*vector1);
+	BOOST_CHECK(*vector2);
+	BOOST_CHECK(*vector1 != *vector2);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_move_assignment, T, types_t)
+{
+	cublas::vector<T> vector1(N);
+	cublas::vector<T> vector2;
+
+	vector2 = std::move(vector1);
+
+	BOOST_CHECK_EQUAL(0, vector1.size());
+	BOOST_CHECK_EQUAL(N, vector2.size());
+
+	BOOST_CHECK(!*vector1);
+	BOOST_CHECK(*vector2);
+}
+*/
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_plus, T, types_t)
 {
 	generator<T> generate;
