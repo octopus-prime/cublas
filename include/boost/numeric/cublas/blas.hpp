@@ -15,14 +15,20 @@ namespace numeric {
 namespace cublas {
 
 // blas1
-template <typename T, template <typename> class C>
-void scal(const T& alpha, C<T>& container);
+template <typename T>
+std::size_t amax(const vector<T>& vector);
+
+template <typename T>
+std::size_t amin(const vector<T>& vector);
+
+//template <typename T>
+//T asum(const vector<T>& vector);
 
 template <typename T, template <typename> class C>
 void axpy(const T& alpha, const C<T>& container1, C<T>& container2);
 
-template <typename T>
-T dot(const vector<T>& vector1, const vector<T>& vector2);
+template <typename T, template <typename> class C>
+void scal(const T& alpha, C<T>& container);
 
 /**
  * @tparam T The value type, e.g. real32_t or complex64_t.
@@ -32,6 +38,9 @@ T dot(const vector<T>& vector1, const vector<T>& vector2);
  */
 template <typename T, template <typename> class C>
 void copy(const C<T>& container1, C<T>& container2);
+
+template <typename T>
+T dot(const vector<T>& vector1, const vector<T>& vector2);
 
 // blas2
 template <typename T>
