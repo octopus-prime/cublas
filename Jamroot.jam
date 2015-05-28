@@ -71,6 +71,7 @@ doxygen cublas.html
 		[ glob include/boost/numeric/cuda/*.hpp ]
 		[ glob include/boost/numeric/cublas/*.hpp ]
 		[ glob include/boost/numeric/cusolver/*.hpp ]
+		[ glob include/boost/numeric/cusparse/*.hpp ]
 	:
 		<doxygen:param>"PROJECT_NAME=\"cublas\""
 		<doxygen:param>"PROJECT_BRIEF=\"Adapter between boost::numeric::ublas and cuda/cublas/cusolver\""
