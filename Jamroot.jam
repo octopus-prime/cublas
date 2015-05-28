@@ -32,6 +32,14 @@ lib boost_cusolver
 		/site-config//cusolver
 	;
 
+lib boost_cusparse
+	:
+		[ glob source/cusparse/*.cpp ]
+		boost_cuda
+		boost_cublas
+		/site-config//cusparse
+	;
+
 unit-test boost_cuda_test
 	:
 		[ glob test/cuda/*.cpp ]
@@ -55,6 +63,7 @@ exe boost_cublas_example
 		boost_cuda
 		boost_cublas
 		boost_cusolver
+		boost_cusparse
 	;
 
 doxygen cublas.html

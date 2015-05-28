@@ -8,6 +8,8 @@
 #include "generator.hpp"
 #include "runner.hpp"
 #include <boost/numeric/cublas/blas.hpp>
+#include <boost/numeric/cusolver/solver.hpp>
+#include <boost/numeric/cusparse/sparse.hpp>
 #include <boost/numeric/cusolver/lu.hpp>
 #include <boost/numeric/cusolver/qr.hpp>
 #include <boost/numeric/ublas/blas.hpp>
@@ -128,18 +130,85 @@ test()
 	runner("cpu")(cpu);
 }
 
+static void
+test_solve_sparse()
+{
+	typedef complex64_t value_t;
+	constexpr std::size_t N = 3;
+
+	ublas::compressed_matrix<value_t, ublas::row_major, 0, ublas::unbounded_array<int>> Au(N, N);
+	Au(0,0) = 2;
+	Au(0,2) = 2;
+	Au(1,0) = 1;
+	Au(1,1) = 2;
+	Au(1,2) = 2;
+	Au(2,1) = 2;
+	Au(2,2) = 3;
+
+	const cusparse::compressed_matrix<value_t> Ac = Au;
+
+	ublas::vector<value_t> bu(N);
+	bu <<= 8, 9, 7;
+
+	const cublas::vector<value_t> bc = bu;
+
+	cublas::vector<value_t> xc(N);
+
+	cusparse::csrlsvqr(Ac, bc, xc);
+
+	const ublas::vector<value_t> xu = xc;
+
+	std::cout << "x = " << xu << std::endl;
+}
+
+static void
+test_solve_eigen()
+{
+	typedef complex64_t value_t;
+	constexpr std::size_t N = 2;
+
+//    double data[] = {
+//            -5, -6,
+//            +1,  0
+//    };
+
+	ublas::compressed_matrix<value_t, ublas::row_major, 0, ublas::unbounded_array<int>> Au(N, N);
+	Au(0,0) = -5;
+	Au(0,1) = -6;
+	Au(1,0) = +1;
+
+	const cusparse::compressed_matrix<value_t> Ac = Au;
+
+	ublas::vector<value_t> mu(N);
+	mu <<= 1.0 / 2.0, 1.0 / 3.0;
+
+	const cublas::vector<value_t> mc = mu;
+
+	cublas::vector<value_t> xc(N);
+	value_t nu;
+
+	cusparse::csreigvsi(Ac, value_t(-3.0), mc, 1000000, nu, xc);
+
+	const ublas::vector<value_t> xu = xc;
+
+	std::cout << "µ = " << nu << std::endl;
+	std::cout << "x = " << xu << std::endl;
+}
+
 int
 main()
 {
-//	try
-//	{
-		test_solve();
-		test_invert();
-		test();
-//	}
-//	catch (const std::exception& e)
-//	{
-//		std::cerr << "error: " << e.what() << std::endl;
-//	}
+	try
+	{
+		test_solve_sparse();
+		test_solve_eigen();
+//		test_solve();
+//		test_invert();
+//		test();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "error: " << e.what() << std::endl;
+	}
 	return 0;
 }

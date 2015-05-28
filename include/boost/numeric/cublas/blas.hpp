@@ -45,16 +45,16 @@ std::size_t amin(const vector<T>& vector);
 //T asum(const vector<T>& vector);
 
 /**
- * axpy
+ * Computes \f$y = \alpha * x + y\f$
  * @tparam T The value type.
  * @tparam C The container type.
- * @param alpha The alpha.
- * @param container1 The container1.
- * @param container2 The container2.
+ * @param a The \f$\alpha\f$.
+ * @param x The \f$x\f$.
+ * @param y The \f$y\f$.
  * @see http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-axpy
  */
 template <typename T, template <typename> class C>
-void axpy(const T& alpha, const C<T>& container1, C<T>& container2);
+void axpy(const T& a, const C<T>& x, C<T>& y);
 
 /**
  * @tparam T The value type.
